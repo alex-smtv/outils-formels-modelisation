@@ -2,24 +2,26 @@ import TaskManagerLib
 
 let taskManager = createTaskManager()
 
+print()
 print("##################################################################")
 print("### An example of sequence that leads to the described problem ###")
 print("##################################################################")
 print()
 
-// * Taking back our places and transitions from the task manager
+// * Taking back our places and transitions from the task manager 
+// (using var because we'll re-initalize them in the correct task manager)
 
 // Places
-let taskPool    = taskManager.places.filter { $0.name == "taskPool"    }[0]
-let processPool = taskManager.places.filter { $0.name == "processPool" }[0]
-let inProgress  = taskManager.places.filter { $0.name == "inProgress"  }[0]
+var taskPool    = taskManager.places.filter { $0.name == "taskPool"    }[0]
+var processPool = taskManager.places.filter { $0.name == "processPool" }[0]
+var inProgress  = taskManager.places.filter { $0.name == "inProgress"  }[0]
 
 // Transitions
-let create  = taskManager.transitions.filter { $0.name == "create"  }[0]
-let spawn   = taskManager.transitions.filter { $0.name == "spawn"   }[0]
-let success = taskManager.transitions.filter { $0.name == "success" }[0]
-let exec    = taskManager.transitions.filter { $0.name == "exec"    }[0]
-let fail    = taskManager.transitions.filter { $0.name == "fail"    }[0]
+var create  = taskManager.transitions.filter { $0.name == "create"  }[0]
+var spawn   = taskManager.transitions.filter { $0.name == "spawn"   }[0]
+var success = taskManager.transitions.filter { $0.name == "success" }[0]
+var exec    = taskManager.transitions.filter { $0.name == "exec"    }[0]
+var fail    = taskManager.transitions.filter { $0.name == "fail"    }[0]
 
 // Simulation of the problem
 var m = create.fire(from: [taskPool: 0, processPool: 0, inProgress: 0]) ; print("\(m!)  // fire create")
@@ -30,7 +32,7 @@ m = exec   .fire(from: m!) ; print("\(m!)  // fire exec")
 m = success.fire(from: m!) ; print("\(m!)  // fire success")
 
 print()
-print(">> Problem: remaining process will never be killed. See below")
+print(">> Problem: remaining process will never be killed. See below.")
 print()
 
 /*  Explanation
@@ -74,8 +76,55 @@ print("     |--> And finally the task succeed: \(mIF!)")
 
 let correctTaskManager = createCorrectTaskManager()
 
-// Show here that you corrected the problem.
-// For instance:
-//     let m1 = create.fire(from: [taskPool: 0, processPool: 0, inProgress: 0])
-//     let m2 = spawn.fire(from: m1!)
-//     ...
+print()
+print()
+print("##################################################################")
+print("###          Proposition of a corrected task manager           ###")
+print("##################################################################")
+print()
+
+// * Taking back our places and transitions from the task manager
+
+// Places
+taskPool    = correctTaskManager.places.filter { $0.name == "taskPool"    }[0]
+processPool = correctTaskManager.places.filter { $0.name == "processPool" }[0]
+inProgress  = correctTaskManager.places.filter { $0.name == "inProgress"  }[0]
+let processPass = correctTaskManager.places.filter { $0.name == "processPass" }[0]
+
+// Transitions
+create  = correctTaskManager.transitions.filter { $0.name == "create"  }[0]
+spawn   = correctTaskManager.transitions.filter { $0.name == "spawn"   }[0]
+success = correctTaskManager.transitions.filter { $0.name == "success" }[0]
+exec    = correctTaskManager.transitions.filter { $0.name == "exec"    }[0]
+fail    = correctTaskManager.transitions.filter { $0.name == "fail"    }[0]
+
+// Simulation of resolution of the problem
+m = create  .fire(from: [taskPool: 0, processPool: 0, inProgress: 0, processPass: 0]) ; print("\(m!)  // fire create")
+m = spawn   .fire(from: m!) ; print("\(m!)  // fire spawn")
+m = exec    .fire(from: m!) ; print("\(m!)  // fire exec")
+m = spawn   .fire(from: m!) ; print("\(m!)  // fire spawn")
+let x = exec.fire(from: m!)
+
+if x != nil {
+    print("\(m!)  // fire exec (review code: this should not happen, end of execution here)")
+} else {
+    print()
+    print("We tried to fire exec, but it was impossible. Indeed the pre conditions are not met!")
+    print()
+    m = success.fire(from: m!) ; print("\(m!)  // fire success")
+
+    print()
+    print("The second process that was spawned remains in the process pool. The behavior is now correct.")
+    print("Let's quickly test that a failed task give us one process pass back.")
+    print()
+
+    // From previous testing, there's already one process in the pool
+    m = create.fire(from: m!) ; print("\(m!)  // fire create")
+    m = exec  .fire(from: m!) ; print("\(m!)  // fire exec")
+    m = fail  .fire(from: m!) ; print("\(m!)  // fire fail")
+
+    print()
+    print("We got our process pass back, the behavior is also correct in this scenario.")
+    print()
+    print("End of the demonstration.")
+}
