@@ -1,3 +1,3 @@
 # TaskManager
 
-A description of this package.
+Handout of TP1.
