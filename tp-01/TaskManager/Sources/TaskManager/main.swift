@@ -2,19 +2,12 @@ import TaskManagerLib
 
 let taskManager = createTaskManager()
 
-// Show here an example of sequence that leads to the described problem.
-// For instance:
-//     let m1 = create.fire(from: [taskPool: 0, processPool: 0, inProgress: 0])
-//     let m2 = spawn.fire(from: m1!)
-//     ...
-
-// REMARK: to make our simulation we're taking back our places and transitions from the task manager 
-//         && we're putting them into vars (and not into lets, because our vars will be initialized a second time at the corrected version)
-
 print("##################################################################")
 print("### An example of sequence that leads to the described problem ###")
 print("##################################################################")
 print()
+
+// * Taking back our places and transitions from the task manager
 
 // Places
 let taskPool    = taskManager.places.filter { $0.name == "taskPool"    }[0]
@@ -28,54 +21,56 @@ let success = taskManager.transitions.filter { $0.name == "success" }[0]
 let exec    = taskManager.transitions.filter { $0.name == "exec"    }[0]
 let fail    = taskManager.transitions.filter { $0.name == "fail"    }[0]
 
-// Initial state: create one task
-let m1 = create.fire(from: [taskPool: 0, processPool: 0, inProgress: 0])
-print("m1: \(m1!)")
+// Simulation of the problem
+var m = create.fire(from: [taskPool: 0, processPool: 0, inProgress: 0]) ; print("\(m!)  // fire create")
+m = spawn  .fire(from: m!) ; print("\(m!)  // fire spawn")
+m = exec   .fire(from: m!) ; print("\(m!)  // fire exec")
+m = spawn  .fire(from: m!) ; print("\(m!)  // fire spawn")
+m = exec   .fire(from: m!) ; print("\(m!)  // fire exec")
+m = success.fire(from: m!) ; print("\(m!)  // fire success")
 
-// One new process available
-let m2 = spawn.fire(from: m1!)
-print("m2: \(m2!)")
+print()
+print(">> Problem: remaining process will never be killed. See below")
+print()
 
-// Execute task with the available process
-let m3 = exec.fire(from: m2!)
-print("m3: \(m3!)")
+/*  Explanation
+  0. Initial state: create one task
+  1. One new process is available
+  2. Execute task with the available process
+  3. While processing, another process is released
+  4. Consequently, the new released process will try to execute the previous task that 
+     is still being processed by the first process
+  5. On success, one task is taken off from the task pool and one process is killed: 
+     the other process remains in the "in progress" place
 
-// While processing, another process is released
-let m4 = spawn.fire(from: m3!)
-print("m4: \(m4!)")
+  Problem: from now on the remaining process will never be killed.
+*/
 
-// Consequently the new released process will execute the previous task that is still being independently processed in the first process
-let m5 = exec.fire(from: m4!)
-print("m5: \(m5!)")
-
-// On success, one task is taken off from the task pool and one process is killed: the other process remains in "in progress" place
-let m6 = success.fire(from: m5!)
-print("m6: \(m6!)")
-
-// PROBLEM: from now on, the remaining process will never be killed
-print("\n>> Problem: remaining process will never be killed.\n")
+// * Additional output to illustrate some case where the process can not be killed
 
 // Illustration when a new task succed
-let mIS1 = create .fire(from: m6!)
-let mIS2 = spawn  .fire(from: mIS1!)
-let mIS3 = exec   .fire(from: mIS2!)
-let mIS4 = success.fire(from: mIS3!)
-print("Final marking when a new task succeed: \(mIS4!)")
+var mIS = create .fire(from: m!)
+mIS = spawn  .fire(from: mIS!)
+mIS = exec   .fire(from: mIS!)
+mIS = success.fire(from: mIS!)
+print("Final marking when a new task succeed: \(mIS!)")
 print()
 
 // Illustration when a new task fails
-let mIF1 = create .fire(from: m6!)
-let mIF2 = spawn  .fire(from: mIF1!)
-let mIF3 = exec   .fire(from: mIF2!)
-let mIF4 = fail   .fire(from: mIF3!)
-print("Final marking when a new task fails   : \(mIF4!)")
+var mIF = create .fire(from: m!)
+mIF = spawn  .fire(from: mIF!)
+mIF = exec   .fire(from: mIF!)
+mIF = fail   .fire(from: mIF!)
+print("Final marking when a new task fails   : \(mIF!)")
 
-let mIF5 = spawn  .fire(from: mIF4!)
-print("     |--> Then a new process spawns   : \(mIF5!)")
+mIF = spawn  .fire(from: mIF!)
+print("     |--> Then a new process spawns   : \(mIF!)")
 
-let mIF6 = exec   .fire(from: mIF5!)
-let mIF7 = success.fire(from: mIF6!)
-print("     |--> And finally the task succeed: \(mIF7!)")
+mIF = exec   .fire(from: mIF!)
+mIF = success.fire(from: mIF!)
+print("     |--> And finally the task succeed: \(mIF!)")
+
+// ===========================================================================
 
 let correctTaskManager = createCorrectTaskManager()
 
