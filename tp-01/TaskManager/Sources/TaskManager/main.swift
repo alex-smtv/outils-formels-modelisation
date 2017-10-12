@@ -12,16 +12,16 @@ print()
 // (using var because we'll re-initalize them in the correct task manager)
 
 // Places
-var taskPool    = taskManager.places.filter { $0.name == "taskPool"    }[0]
-var processPool = taskManager.places.filter { $0.name == "processPool" }[0]
-var inProgress  = taskManager.places.filter { $0.name == "inProgress"  }[0]
+var taskPool    = taskManager.places.first { $0.name == "taskPool"    }!
+var processPool = taskManager.places.first { $0.name == "processPool" }!
+var inProgress  = taskManager.places.first { $0.name == "inProgress"  }!
 
 // Transitions
-var create  = taskManager.transitions.filter { $0.name == "create"  }[0]
-var spawn   = taskManager.transitions.filter { $0.name == "spawn"   }[0]
-var success = taskManager.transitions.filter { $0.name == "success" }[0]
-var exec    = taskManager.transitions.filter { $0.name == "exec"    }[0]
-var fail    = taskManager.transitions.filter { $0.name == "fail"    }[0]
+var create  = taskManager.transitions.first { $0.name == "create"  }!
+var spawn   = taskManager.transitions.first { $0.name == "spawn"   }!
+var success = taskManager.transitions.first { $0.name == "success" }!
+var exec    = taskManager.transitions.first { $0.name == "exec"    }!
+var fail    = taskManager.transitions.first { $0.name == "fail"    }!
 
 // Simulation of the problem
 var m = create.fire(from: [taskPool: 0, processPool: 0, inProgress: 0]) ; print("\(m!)  // fire create")
@@ -86,17 +86,17 @@ print()
 // * Taking back our places and transitions from the task manager
 
 // Places
-taskPool    = correctTaskManager.places.filter { $0.name == "taskPool"    }[0]
-processPool = correctTaskManager.places.filter { $0.name == "processPool" }[0]
-inProgress  = correctTaskManager.places.filter { $0.name == "inProgress"  }[0]
-let processPass = correctTaskManager.places.filter { $0.name == "processPass" }[0]
+taskPool        = correctTaskManager.places.first { $0.name == "taskPool"    }!
+processPool     = correctTaskManager.places.first { $0.name == "processPool" }!
+inProgress      = correctTaskManager.places.first { $0.name == "inProgress"  }!
+let processPass = correctTaskManager.places.first { $0.name == "processPass" }!
 
 // Transitions
-create  = correctTaskManager.transitions.filter { $0.name == "create"  }[0]
-spawn   = correctTaskManager.transitions.filter { $0.name == "spawn"   }[0]
-success = correctTaskManager.transitions.filter { $0.name == "success" }[0]
-exec    = correctTaskManager.transitions.filter { $0.name == "exec"    }[0]
-fail    = correctTaskManager.transitions.filter { $0.name == "fail"    }[0]
+create  = correctTaskManager.transitions.first { $0.name == "create"  }!
+spawn   = correctTaskManager.transitions.first { $0.name == "spawn"   }!
+success = correctTaskManager.transitions.first { $0.name == "success" }!
+exec    = correctTaskManager.transitions.first { $0.name == "exec"    }!
+fail    = correctTaskManager.transitions.first { $0.name == "fail"    }!
 
 // Simulation of resolution of the problem
 m = create  .fire(from: [taskPool: 0, processPool: 0, inProgress: 0, processPass: 0]) ; print("\(m!)  // fire create")
