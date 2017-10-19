@@ -1,7 +1,16 @@
 import PetriKit
 
 public func createModel() -> PTNet {
-    // Write here the encoding of the smokers' model.
+    /* Encoding of the smokers' model.
+
+       Personnal Memo:
+        > r = agent (random)
+        > p = paper
+        > t = tobacco 
+        > m = match
+        > w = waiting
+        > s = smoking
+    */
 
     // Places
     let r = PTPlace(named: "r")
