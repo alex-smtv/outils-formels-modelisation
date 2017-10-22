@@ -38,7 +38,7 @@ if let markingGraph = model.markingGraph(from: initialMarking) {
         // Check for each successor node
         for nextNode in node.successors.values {
 
-            // Do something only if the successor marking isn't one we already found AND if the successor marking isn't the one from one node planned to visit
+            // Do something only if the successor marking isn't one we already found AND if the successor marking isn't one from the nodes planned to visit
             if !allMarkingsFound.contains(where: { $0 == nextNode.marking }) && nodesToVisit.first(where: { $0.marking == nextNode.marking }) == nil {
                 nodesToVisit.append(nextNode)
             }
