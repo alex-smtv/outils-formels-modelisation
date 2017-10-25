@@ -69,30 +69,30 @@ if let markingGraph = model.markingGraph(from: initialMarking) {
         // If at least two smoking smokers is found
         if !existTwoSmokerSmoking && ( (s1 == 1 && s2 == 1) || (s1 == 1 && s3 == 1) || (s2 == 1 && s3 == 1) ) {
             existTwoSmokerSmoking = true
-            print("Question 4.2) At least one occurrence of two different smokers smoking at the same time has been found. So yes, it's possible that two different smokers are smoking at the same time.")
+            print("Question 4.2) At least one occurrence of two different smokers smoking at the same time has been found. So yes, it's possible to have two different smokers smoking at the same time.")
             print("  - This is the matching marking answering the question: \(marking)")
             print()
         }
 
-        // If at least one ingredient with a quantity of 2 is found
-        if !existTwoOfSameIngredient && (p == 2 || t == 2 || m == 2) {
+        // If at least one ingredient is found twice
+        if !existTwoOfSameIngredient && (p > 1 || t > 1 || m > 1) {
             existTwoOfSameIngredient = true
-            print("Question 4.3) The answer to the question is no: it's not possible to have two quantity of the same ingredient on the table. Unfortunately the application found a scenario of this happening: an unwanted error is present.")
-            print("  - This is the (false) matching marking to the question: \(marking)")
+            print("Question 4.3) The answer to the question is no: it's not possible to have the same ingredient twice on the table. Unfortunately the application found a state of this happening: an unwanted error is present.")
+            print("  - This is the (false) matching marking found: \(marking)")
             print()
         }
 
     }
 
     if !existTwoSmokerSmoking {
-        print("Question 4.2) The answer to the question is yes: two different smokers can be smoking at the same time. Unfortunately the application didn't find one such scenario: an unwanted error is present.")
+        print("Question 4.2) The answer to the question is yes: two different smokers can be smoking at the same time. Unfortunately the application didn't find one such state: an unwanted error is present.")
         print()
     }
 
     if !existTwoOfSameIngredient {
-        print("Question 4.3) From all the ingredients none is found twice on the table. So no, it's not possible to have two quantity of the same ingredient on the table.")
+        print("Question 4.3) From all states, none contains the same ingredient twice. So no, it's not possible to have the same ingredient twice on the table.")
         print()
     }
 
-    print("End of the demonstration.")
+    print("End of the application.")
 }
