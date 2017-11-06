@@ -13,13 +13,13 @@ public enum Token: Comparable, ExpressibleByIntegerLiteral {
         switch (lhs, rhs) {
         case let (.some(x), .some(y)):
             return x == y
+        // /!\ REMARK /!\ for assignment correction: in my implementation's logic, default case returning true was not satisfactory and I extended cases checking to
+        //                                           include critical scenarios which will 'activate' correct behavior of my implementation's logic.
         case (.some, .omega):
             return false
         case (.omega, .some):
             return false
         case (.omega, .omega):
-            return true
-        default:
             return true
         }
     }
@@ -54,6 +54,7 @@ extension Dictionary where Key == PTPlace, Value == Token {
 
         var hasGreater = false
         for place in lhs.keys {
+            // /!\ REMARK /!\ for assignment correction: the sign should be >= and not <=, I guess? At least in my logic of implementation.
             guard lhs[place]! >= rhs[place]! else { return false }
             if lhs[place]! > rhs[place]! {
                 hasGreater = true
