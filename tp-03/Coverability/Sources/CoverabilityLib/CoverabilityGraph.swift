@@ -20,12 +20,15 @@ public class CoverabilityGraph {
         while let node = toCheck.popLast() {
             seen.append(node)
             for (_, successor) in node.successors {
-                if !seen.contains(where: { $0 === successor }) {
+
+                // /!\ REMARK /!\ for assignment correction: the check of whether the successor node is contained in the array of future nodes to be visited was missing
+                //                                           and it's an important checking for proper counting
+                if !seen.contains(where: { $0 === successor }) && !toCheck.contains(where: { $0 === successor }) {
                     toCheck.append(successor)
                 }
             }
         }
-
+        
         return seen.count
     }
 
