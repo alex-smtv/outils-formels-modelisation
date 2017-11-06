@@ -5,8 +5,10 @@ import XCTest
 class CoverabilityLibTests: XCTestCase {
 
     static let allTests = [
-        ("testBoundedGraph"  , testBoundedGraph  ),
-        ("testUnboundedGraph", testUnboundedGraph),
+        ("testBoundedGraph"  ,    testBoundedGraph     ),
+        ("testUnboundedGraph",    testUnboundedGraph   ),
+        ("testCoverabilityGraph", testCoverabilityGraph),
+        ("testModelFromLecture",  testModelFromLecture ),
     ]
 
     func testBoundedGraph() {
@@ -46,7 +48,55 @@ class CoverabilityLibTests: XCTestCase {
         let initialMarking: CoverabilityMarking =
             [s0: 1, s1: 0, s2: 1, s3: 0, s4: 1, b: 0]
         let coverabilityGraph = model.coverabilityGraph(from: initialMarking)
-        XCTAssertEqual(coverabilityGraph.count, 4)
+
+        // /!\ REMARK /!\ for assignment correction: if I'm not mistaken, the count should be at 5 (and not 4) as we saw at the exercise session on Friday
+        XCTAssertEqual(coverabilityGraph.count, 5)
+    }
+
+    // Test copied from SmokersLib and adapted for CoverabilityGraph
+    func testCoverabilityGraph() {
+        let p = PTPlace(named: "p")
+        let t = PTTransition(
+            named         : "t",
+            preconditions : [PTArc(place: p)],
+            postconditions: [PTArc(place: p)])
+        let net = PTNet(places: [p], transitions: [t])
+
+        var graph: CoverabilityGraph?
+
+        graph = net.coverabilityGraph(from: [p: Token(integerLiteral: 0)])
+        XCTAssertNotNil(graph)
+        if graph != nil {
+            XCTAssert(graph!.marking == [p: Token(integerLiteral: 0)])
+            XCTAssert(graph!.successors.count == 0)
+        }
+
+        graph = net.coverabilityGraph(from: [p: Token(integerLiteral: 1)])
+        XCTAssertNotNil(graph)
+        if graph != nil {
+            XCTAssert(graph!.marking == [p: Token(integerLiteral: 1)])
+            XCTAssert(graph!.successors.count == 1)
+
+            let successor = graph!.successors[t]
+            XCTAssertNotNil(successor)
+            XCTAssert(successor === graph)
+        }
+    }
+
+    // Testing a model saw in lecture showed for demonstration and teaching purpose. As we saw, the count should be at 8.
+    func testModelFromLecture() {
+        let model = createModelFromLecture()
+        guard let p1 = model.places.first(where: { $0.name == "p1" }),
+              let p2 = model.places.first(where: { $0.name == "p2" }),
+              let p3 = model.places.first(where: { $0.name == "p3" })
+            else {
+                fatalError("invalid model")
+        }
+
+        let initialMarking: CoverabilityMarking =
+            [p1: 2, p2: 1, p3: 0]
+        let coverabilityGraph = model.coverabilityGraph(from: initialMarking)
+        XCTAssertEqual(coverabilityGraph.count, 8)
     }
 
 }
