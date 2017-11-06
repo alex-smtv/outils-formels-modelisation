@@ -13,6 +13,12 @@ public enum Token: Comparable, ExpressibleByIntegerLiteral {
         switch (lhs, rhs) {
         case let (.some(x), .some(y)):
             return x == y
+        case (.some, .omega):
+            return false
+        case (.omega, .some):
+            return false
+        case (.omega, .omega):
+            return true
         default:
             return true
         }
@@ -48,7 +54,7 @@ extension Dictionary where Key == PTPlace, Value == Token {
 
         var hasGreater = false
         for place in lhs.keys {
-            guard lhs[place]! <= rhs[place]! else { return false }
+            guard lhs[place]! >= rhs[place]! else { return false }
             if lhs[place]! > rhs[place]! {
                 hasGreater = true
             }
