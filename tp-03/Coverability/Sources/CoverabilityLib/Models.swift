@@ -83,3 +83,26 @@ public func createUnboundedModel() -> PTNet {
                 postconditions: [PTArc(place: s2), PTArc(place: s4)]),
             ])
 }
+
+public func createModelFromLecture() -> PTNet {
+    let p1 = PTPlace(named: "p1")
+    let p2 = PTPlace(named: "p2")
+    let p3 = PTPlace(named: "p3")
+
+    return PTNet(
+        places: [p1, p2, p3],
+        transitions: [
+            PTTransition(
+                named         : "t1",
+                preconditions : [PTArc(place: p1)],
+                postconditions: [PTArc(place: p2), PTArc(place: p3)]),
+            PTTransition(
+                named         : "t2",
+                preconditions : [PTArc(place: p2), PTArc(place: p3)],
+                postconditions: [PTArc(place: p1)]),
+            PTTransition(
+                named         : "t3",
+                preconditions : [PTArc(place: p2)],
+                postconditions: [PTArc(place: p1)]),
+            ])
+}
