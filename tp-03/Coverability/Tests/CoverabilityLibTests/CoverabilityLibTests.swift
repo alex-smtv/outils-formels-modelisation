@@ -49,7 +49,7 @@ class CoverabilityLibTests: XCTestCase {
             [s0: 1, s1: 0, s2: 1, s3: 0, s4: 1, b: 0]
         let coverabilityGraph = model.coverabilityGraph(from: initialMarking)
 
-        // /!\ REMARK /!\ for assignment correction: if I'm not mistaken, the count should be at 5 (and not 4) as we saw at the exercise session on Friday
+        // /!\ REMARK /!\ for assignment correction: the count should be at 5 (and not 4) as we saw at the exercise session on Friday
         XCTAssertEqual(coverabilityGraph.count, 5)
     }
 
