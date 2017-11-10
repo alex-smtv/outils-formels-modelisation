@@ -1,6 +1,7 @@
-@testable import CoverabilityLibTests
+@testable import PhilosophersLibTests
 import XCTest
 
 XCTMain([
-    testCase(CoverabilityLibTests.allTests),
+    testCase(PredicateNetTests.allTests),
+    testCase(PredicateMarkingGraphTests.allTests),
 ])
