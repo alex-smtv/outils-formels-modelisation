@@ -71,7 +71,7 @@ public class PredicateTransition<T: Equatable> {
     public init(
         preconditions : Set<PredicateArc<T>> = [],
         postconditions: Set<PredicateArc<T>> = [],
-        conditions    : [(Binding) -> Bool]  = [])
+        conditions    : [(Binding) -> Bool]  = []) // conditions de binding vers un boolean => un prédicat
     {
         var inboundPlaces   : Set<PredicateNet<T>.PlaceType> = []
         var inboundVariables: Set<Variable> = []
@@ -95,7 +95,7 @@ public class PredicateTransition<T: Equatable> {
             }
         }
 
-        // Make sure postconditions aren't labeled with free variables.
+        // Make sure postconditions aren't labeled with free variables. A savoir que toutes les variables en post existent aussi en pre
         for arc in postconditions {
             for item in arc.label {
                 switch item {
@@ -151,6 +151,8 @@ public class PredicateTransition<T: Equatable> {
     ///   to pick `1` once again. Now if we check the second arrangement, we'll bind `x` to `2`
     ///   and `y` to `1` before moving to `p1`. But as we won't be able to match `2` in the tokens
     ///   of `p1`, we'll reject the binding and move to the next arrangement.
+
+    // Un tableau de tout les bindings qui permet de fire
     public func fireableBingings(from marking: PredicateNet<T>.MarkingType) -> [Binding] {
         // Sort the places so we always bind their variables in the same order.
         let variables    = self.inboundVariables()
@@ -210,12 +212,17 @@ public class PredicateTransition<T: Equatable> {
     public func fire(from marking: PredicateNet<T>.MarkingType, with binding: Binding)
         -> PredicateNet<T>.MarkingType?
     {
-        // Check whether the provided binding is valid.
+
+        /**** IS FIREABLE: START ****/
+        // Check whether the provided binding is valid. A savoir que la transition est tirable
         let variables = self.inboundVariables()
         for (place, requiredVariables) in variables {
             var remainingTokens = marking[place]!
             for variable in requiredVariables {
+                // Si on peut trouver une valeur dans le binding
                 guard let value = binding[variable]                else { return nil }
+
+                // Si on peut tirer le binding depuis la place                
                 guard let index = remainingTokens.index(of: value) else { return nil }
                 remainingTokens.remove(at: index)
             }
@@ -225,6 +232,8 @@ public class PredicateTransition<T: Equatable> {
         for condition in self.conditions {
             guard condition(binding) else { return nil }
         }
+
+        /**** IS FIREABLE: END ****/
 
         var result = marking
 
@@ -245,9 +254,9 @@ public class PredicateTransition<T: Equatable> {
                 case .variable(let v):
                     // Note that we can assume the variable to be in the provided mapping, as we
                     // checked that postconditions aren't labeled with free variables.
-                    result[arc.place]!.append(binding[v]!)
+                    result[arc.place]!.append(binding[v]!) // Si variable, on ajoute sa valeur
                 case .function(let f):
-                    result[arc.place]!.append(f(binding))
+                    result[arc.place]!.append(f(binding)) // Si fonction, on appelle la fonction
                 }
             }
         }
@@ -314,6 +323,7 @@ extension PredicateTransition: Hashable {
 /// Structure for arcs of predicate nets.
 public class PredicateArc<T: Equatable>: Hashable {
 
+    // "un tableau de label"
     public init(place: PredicateNet<T>.PlaceType, label: [PredicateLabel<T>]) {
         self.place = place
         self.label = label
@@ -332,6 +342,7 @@ public class PredicateArc<T: Equatable>: Hashable {
 
 }
 
+// Label de chaque arc qui est soit une variable, soit une fonction (de binding vers T, T est un type générique)
 public enum PredicateLabel<T: Equatable> {
 
     case variable(Variable)
