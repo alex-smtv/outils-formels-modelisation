@@ -13,17 +13,86 @@ extension PredicateNet {
         // You may use these methods to check if you've already visited a marking, or if the model
         // is unbounded.
 
-        return nil
+        let initialNode = PredicateMarkingNode(marking: marking)        
+        var toVisit: [PredicateMarkingNode<T>] = [initialNode]
+
+        while let node = toVisit.popLast() {
+
+            // fireable var will hold all possible fireable transitions and will keep information of which bindings make a transition fireable.
+            var fireable: [PredicateTransition<T>: [PredicateTransition<T>.Binding]] = [:]
+
+            // Iterate through all transitions to find which one is fireable with which bindings.
+            for transition in self.transitions {
+                let bindings = transition.fireableBingings(from: node.marking)
+
+                if bindings.count > 0 {
+                    fireable[transition] = bindings
+                }
+            }
+
+            // If no transition is fireable from the current node, jump to the next iteration.
+            guard !fireable.isEmpty else { continue }
+
+            // Now iterate through each known fireable transitions with their appropriate bindings and calculate the successors of the current node.
+            for (transition, bindings) in fireable {
+
+                // bindingMap var will hold all possible mapping of a binding to a successor node. This PredicateBindingMap will be associated to the current transition later.
+                var bindingMap = PredicateBindingMap<T>()
+
+                // For each valid binding, determine the successor node.
+                for binding in bindings {
+                    
+                    let newMarking = transition.fire(from: node.marking, with: binding)!
+                    var successorNode: PredicateMarkingNode<T>?
+
+                    // Iterate through the petri net being constructed to determine if the new successor already exist.
+                    for createdNode in initialNode {
+                        if PredicateNet.equals(newMarking, createdNode.marking) {
+                            
+                            // Successor already exist, save it and break the loop.
+                            successorNode = createdNode
+                            break
+                            
+                        } else if PredicateNet.greater(newMarking, createdNode.marking) {
+                            // The model is unbound, stop everything and return nil.
+                            return nil
+                        }
+                    }
+
+                    // If the successor node already exist, map the binding to this successor node.
+                    if let successorAlreadyExist = successorNode {
+                        bindingMap[binding] = successorAlreadyExist
+                    } 
+                    // Else map the binding to a newly created successor node and add that node to the list of nodes to be visited.
+                    else {
+                        let successor = PredicateMarkingNode(marking: newMarking)
+
+                        bindingMap[binding] = successor
+                        toVisit.append( successor )
+                    }
+
+                }
+
+                // For the current fireable transition, add all possible successors to the current node.
+                node.successors[transition] = bindingMap
+            }
+
+        }
+
+        return initialNode
     }
 
     // MARK: Internals
-
+    
     private static func equals(_ lhs: MarkingType, _ rhs: MarkingType) -> Bool {
         guard lhs.keys == rhs.keys else { return false }
         for (place, tokens) in lhs {
             guard tokens.count == rhs[place]!.count else { return false }
             for t in tokens {
-                guard rhs[place]!.contains(t) else { return false }
+                guard tokens.filter({ $0 == t }).count == rhs[place]!.filter({ $0 == t }).count
+                    else {
+                        return false
+                }
             }
         }
         return true
@@ -37,7 +106,10 @@ extension PredicateNet {
             guard tokens.count >= rhs[place]!.count else { return false }
             hasGreater = hasGreater || (tokens.count > rhs[place]!.count)
             for t in rhs[place]! {
-                guard tokens.contains(t) else { return false }
+                guard tokens.filter({ $0 == t }).count >= rhs[place]!.filter({ $0 == t }).count
+                    else {
+                        return false
+                }
             }
         }
         return hasGreater
