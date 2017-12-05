@@ -45,34 +45,25 @@ public enum Formula {
 
     /// The negation normal form of the formula.
     public var nnf: Formula {
-        //print("nnf start with \(self)")
         switch self {
         case .proposition(_):
-            //print("Proposition \(self)")
             return self
         case .negation(let a):
-            //print("Negation 1 \(a)")
             switch a {
             case .proposition(_):
-                //print("Propositon \(a)")
                 return self
             case .negation(let b):
-                //print("Negation 2 \(b)")
                 return b.nnf
             case .disjunction(let b, let c):
-                //print("Disjunction \(b) with \(c)")
                 return (!b).nnf && (!c).nnf
             case .conjunction(let b, let c):
-                //print("Conjunction \(b) with \(c)")
                 return (!b).nnf || (!c).nnf
             case .implication(_):
                 return (!a.nnf).nnf
             }
         case .disjunction(let b, let c):
-            //print("Disjunction \(b) with \(c)")
             return b.nnf || c.nnf
         case .conjunction(let b, let c):
-            //print("Conjunction \(b) with \(c)")
             return b.nnf && c.nnf
         case .implication(let b, let c):
             return (!b).nnf || c.nnf
