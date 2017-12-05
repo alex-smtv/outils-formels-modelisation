@@ -5,10 +5,13 @@ import XCTest
 class CoverabilityLibTests: XCTestCase {
 
     static let allTests = [
+
         ("testBoundedGraph"  ,    testBoundedGraph     ),
         ("testUnboundedGraph",    testUnboundedGraph   ),
         ("testCoverabilityGraph", testCoverabilityGraph),
         ("testModelFromLecture",  testModelFromLecture ),
+        ("testMultiPaths"    , testMultiPaths),
+
     ]
 
     func testBoundedGraph() {
@@ -97,6 +100,32 @@ class CoverabilityLibTests: XCTestCase {
             [p1: 2, p2: 1, p3: 0]
         let coverabilityGraph = model.coverabilityGraph(from: initialMarking)
         XCTAssertEqual(coverabilityGraph.count, 8)
+
+    func testMultiPaths() {
+        let p0 = PTPlace(named: "p0")
+        let p1 = PTPlace(named: "p1")
+
+        let model = PTNet(
+            places: [p0, p1],
+            transitions: [
+                PTTransition(
+                    named         : "t0",
+                    preconditions : [PTArc(place: p0, tokens: 2)],
+                    postconditions: [PTArc(place: p1)]),
+                PTTransition(
+                    named         : "t1",
+                    preconditions : [PTArc(place: p1, tokens: 6)],
+                    postconditions: [PTArc(place: p1, tokens: 6), PTArc(place: p0)]),
+                PTTransition(
+                    named         : "t2",
+                    preconditions : [PTArc(place: p0, tokens: 2)],
+                    postconditions: [PTArc(place: p0, tokens: 1), PTArc(place: p1, tokens: 4)])])
+
+        let initialMarking: CoverabilityMarking =
+            [p0: 3, p1: 2]
+        let coverabilityGraph = model.coverabilityGraph(from: initialMarking)
+        XCTAssertEqual(coverabilityGraph.count, 7)
+
     }
 
 }
