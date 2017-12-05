@@ -192,6 +192,8 @@ public struct Judgment {
     public let conclusions: Set<Formula>
 
     public var isProvable: Bool {
+        print(self)
+        
         let Γ = self.hypotheses
         let Δ = self.conclusions
 
