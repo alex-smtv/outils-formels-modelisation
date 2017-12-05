@@ -1,5 +1,64 @@
 import ProofKitLib
 
+// --------- Custom
+
+print("--------- Custom output ---------")
+print()
+print("Some examples of computation.")
+print()
+
+do {
+    let P: Formula = "P"
+    let Q: Formula = "Q"
+
+    let f = ((P => Q) => P) => P 
+
+    print("Original Formula: \(f)")
+    print("Computed NNF    : \(f.nnf)")
+    print("Computed DNF    : \(f.dnf)")
+    print("Computed CNF    : \(f.cnf)")
+}
+
+print()
+
+do {
+    let P: Formula = "P"
+    let Q: Formula = "Q"
+    let R: Formula = "R"
+
+    let f = (P || Q) => (Q || R)
+
+    print("Original Formula: \(f)")
+    print("Computed NNF    : \(f.nnf)")
+    print("Computed DNF    : \(f.dnf)")
+    print("Computed CNF    : \(f.cnf)")
+}
+
+print()
+
+do {
+    let a: Formula = "a"
+    let b: Formula = "b"
+    let c: Formula = "c"
+
+    let f = !(a && (b || c))
+
+    print("Original Formula: \(f)")
+    print("Computed NNF    : \(f.nnf)")
+    print("Computed DNF    : \(f.dnf)")
+    print("Computed CNF    : \(f.cnf)")
+}
+
+print()
+print()
+print("--------- Original output ---------")
+print()
+print("Output originally found in main.swift.")
+print()
+
+
+// --------- Original
+
 let a: Formula = "a"
 let b: Formula = "b"
 let f = a && b
