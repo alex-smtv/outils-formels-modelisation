@@ -81,10 +81,7 @@ public enum Formula {
 
     /// The disjunctive normal form of the formula.
     public var dnf: Formula {
-        // Write your code here ...
-
         // Separate the logic in another private var. Why? we'll use a recursive pattern and the initial step should start with a nnf. 
-        //return dnf(self.nnf)
         return self.nnf._dnf
     }
 
@@ -95,16 +92,17 @@ public enum Formula {
             case .proposition(_):
                 return self
 
-            // Dans une nnf, la négation est forcément appliquée à un litéral et non pas à un groupe
+            // Since nnf is the initial step, there's no negation applied to a group. A negation is only applied to a literal.
             case .negation(_):
                 return self
 
-            // disjunction de conjunction
             case .disjunction(let a, let b):
                 return a._dnf || b._dnf
             
+            // In a case of conjunction, first determine the existence of a disjunction in any of the two side.
             case .conjunction(let a, let b):
 
+                // Case 1 -> a is a disjunction: apply the appropriate distributivity rule ("distribute b to a")
                 switch a {
                     case .disjunction(let disjLeft, let disjRight):
                         return (b && disjLeft)._dnf || (b && disjRight)._dnf
@@ -112,6 +110,7 @@ public enum Formula {
                         break
                 }
 
+                // Case 2 -> a is not a disjunction, but b is a disjuction: apply the appropriate distributivity rule ("distribute a to b")
                 switch b {
                     case .disjunction(let disjLeft, let disjRight):
                         return (a && disjLeft)._dnf || (a && disjRight)._dnf
@@ -119,21 +118,63 @@ public enum Formula {
                         break
                 }
 
+                // Case 3 -> neither a or b is a disjunction: keep the recursive algorithm running by calling the dnf computation of both side
                 return a._dnf && b._dnf
 
+            // In a nnf (and by extension dnf here), implications are not allowed.
             case .implication(_,_):
-                fatalError("There sould be no implication in a nnf.")
+                fatalError("There sould be no implication in a nnf/dnf.")
         }
 
     }
 
     /// The conjunctive normal form of the formula.
     public var cnf: Formula {
-        // Write your code here ...
+        // Separate the logic in another private var. Why? we'll use a recursive pattern and the initial step should start with a nnf. 
         return self.nnf._cnf
     }
 
+    // Should be called ONLY after computing nnf: nnf is the initial step of the recursive algorithm.
     private var _cnf: Formula {
+
+        switch self {
+            case .proposition(_):
+                return self
+
+            // Since nnf is the initial step, there's no negation applied to a group. A negation is only applied to a literal.
+            case .negation(_):
+                return self
+
+            // In a case of disjunction, first determine the existence of a conjunction in any of the two side.
+            case .disjunction(let a, let b):
+                
+                // Case 1 -> a is a conjunction: apply the appropriate distributivity rule ("distribute b to a")
+                switch a {
+                    case .conjunction(let disjLeft, let disjRight):
+                        return (b || disjLeft)._cnf && (b || disjRight)._cnf
+                    default:
+                        break
+                }
+
+                // Case 2 -> a is not a conjunction, but b is a conjunction: apply the appropriate distributivity rule ("distribute a to b")
+                switch b {
+                    case .conjunction(let disjLeft, let disjRight):
+                        return (a || disjLeft)._cnf && (a || disjRight)._cnf
+                    default:
+                        break
+                }
+
+                // Case 3 -> neither a or b is a conjunction: keep the recursive algorithm running by calling the cnf computation of both side
+                return a._cnf || b._cnf
+            
+            case .conjunction(let a, let b):
+                return a._cnf && b._cnf
+
+            // In a nnf (and by extension cnf here), implications are not allowed.
+            case .implication(_,_):
+                fatalError("There sould be no implication in a nnf/cnf.")
+        }
+
         return self
     }
 
