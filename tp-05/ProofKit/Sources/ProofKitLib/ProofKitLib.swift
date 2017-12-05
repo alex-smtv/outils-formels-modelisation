@@ -165,8 +165,7 @@ public enum Formula {
             case .implication(_,_):
                 fatalError("There sould be no implication in a nnf/cnf.")
         }
-
-        return self
+        
     }
 
     /// The propositions the formula is based on.
